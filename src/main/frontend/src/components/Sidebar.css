@@ -1,0 +1,47 @@
+.menu-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: #00bcd4;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.sidebar {
+  position: fixed;
+  left: -250px; 
+  top: 0;
+  width: 200px;
+  height: 100%;
+  color: white;
+  padding: 40px 20px; /* 상단 padding 조정 */
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 60px; /* 메뉴 전체를 아래로 내림 */
+}
+
+.sidebar ul li {
+  margin: 20px 0;
+}
+.sidebar ul li a {
+  color: #00bcd4; /* 하늘색 적용 */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.sidebar ul li a:hover {
+  text-decoration: underline;
+}

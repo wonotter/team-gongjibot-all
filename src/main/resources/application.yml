@@ -1,0 +1,28 @@
+server:
+  port: 4000
+
+spring:
+  profiles:
+    default: local
+
+  application:
+    name: ragchat
+
+  config:
+    import:
+      - security/application-db.yml
+      - security/application-mail.yml
+      - security/application-jwt.yml
+      - security/application-oauth.yml
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  
+  access:
+    expiration: 3600000
+    header: Authorization
+  
+  refresh:
+    expiration: 1209600000
+    header: Authorization-refresh
+  
