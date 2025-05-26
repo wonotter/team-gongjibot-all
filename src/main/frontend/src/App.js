@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Sidebar from './components/Sidebar';
-import FindPassword from './pages/FindPassword';
+import { initializeAuth } from './utils/auth';
 import './App.css';
 
 function Home() {
   return (
     <div className="home-container">
-      <div className="message-box">무엇을 알려드릴까요??</div>
+      <div className="message-box">
+        <p>무엇을 알려드릴까요??</p>
+      </div>
     </div>
   );
 }
@@ -21,17 +23,23 @@ function Layout() {
   return (
     <>
       {!hideSidebar && <Sidebar />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/find-password" element={<FindPassword />} />
-      </Routes>
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </main>
     </>
   );
 }
 
 function App() {
+  // 앱 시작 시 인증 초기화 - JWT 토큰 관리
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
   return (
     <Router>
       <Layout />
