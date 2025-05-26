@@ -14,10 +14,12 @@
   position: fixed;
   left: -250px; 
   top: 0;
-  width: 200px;
+  width: 250px;
   height: 100%;
-  color: white;
-  padding: 40px 20px; /* 상단 padding 조정 */
+  background-color: #f9f9f9;
+  color: #333;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 40px 20px;
   transition: left 0.3s ease;
   z-index: 1000;
 }
@@ -29,19 +31,45 @@
 .sidebar ul {
   list-style: none;
   padding: 0;
-  margin-top: 60px; /* 메뉴 전체를 아래로 내림 */
+  margin-top: 60px;
 }
 
 .sidebar ul li {
   margin: 20px 0;
 }
+
 .sidebar ul li a {
-  color: #00bcd4; /* 하늘색 적용 */
+  color: #00bcd4;
   text-decoration: none;
   font-weight: bold;
   font-size: 1.1rem;
+  display: block;
+  padding: 10px 0;
+  transition: color 0.3s ease;
 }
 
 .sidebar ul li a:hover {
-  text-decoration: underline;
+  color: #0097a7;
+  text-decoration: none;
+  transform: translateX(5px);
+}
+
+/* 로그아웃 버튼 스타일 */
+.sidebar-logout {
+  background: none;
+  border: none;
+  color: #00bcd4;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 10px 0;
+  text-align: left;
+  width: 100%;
+  transition: color 0.3s ease;
+}
+
+.sidebar-logout:hover {
+  color: #0097a7;
+  text-decoration: none;
+  transform: translateX(5px);
 }
