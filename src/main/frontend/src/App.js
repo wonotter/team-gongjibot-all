@@ -3,18 +3,10 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Sidebar from './components/Sidebar';
+import Home from './pages/Home';
 import { initializeAuth } from './utils/auth';
 import './App.css';
 
-function Home() {
-  return (
-    <div className="home-container">
-      <div className="message-box">
-        <p>무엇을 알려드릴까요??</p>
-      </div>
-    </div>
-  );
-}
 
 function Layout() {
   const location = useLocation();

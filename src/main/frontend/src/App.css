@@ -1,48 +1,155 @@
-.App {
-  text-align: center;
-}
-
-.main-content {
-  min-height: 100vh;
-  padding-top: 20px;
-}
-
+/* src/App.css 또는 별도 Home.css에 추가 */
 .home-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
-  padding: 0 20px;
-}
-
-.home-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
-}
-
-.home-header h1 {
-  color: #4a90e2;
-  margin: 0;
+  height: 100vh;
+  padding: 30px;
+  box-sizing: border-box;
 }
 
 .message-box {
   border: 2px solid #00bcd4;
   border-radius: 20px;
-  width: 80%;
-  max-width: 800px;
-  height: 200px;
+  width: 500px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: bold;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 188, 212, 0.2);
-  background-color: #fff;
-  margin: 0 auto;
-  padding: 20px;
+}
+.question-container {
+  border: 2px solid #00bcd4;
+  border-radius: 20px;
+  height: 500px;
+  padding: 40px;
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+.question-input {
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.question-button {
+  padding: 14px;
+  background-color: #00bcd4;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: white;
+  cursor: pointer;
+}
+
+.question-button:hover {
+  background-color: #00a5be;
+}
+.main-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: white;
+  position: relative;
+}
+
+.menu-button {
+  font-size: 1.8rem;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 50;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.content-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.content-inner {
+  width: 100%;
+  max-width: 900px;
+  padding: 40px;
+}
+
+.chat-container {
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+}
+
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.chat-bubble {
+  padding: 10px 16px;
+  border-radius: 12px;
+  max-width: 70%;
+}
+
+.chat-bubble.question {
+  align-self: flex-end;
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.chat-bubble.answer {
+  align-self: flex-start;
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.chat-bubble.pulse {
+  animation: pulse 1s infinite;
+}
+
+.chat-form {
+  display: flex;
+  gap: 10px;
+}
+
+.loading-text {
+  font-size: 0.9rem;
+  color: gray;
+}
+
+.question-input {
+  flex: 1;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.question-button {
+  padding: 14px;
+  background-color: #00bcd4;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: white;
+  cursor: pointer;
+}
+
+.question-button:hover {
+  background-color: #00a5be;
 }
