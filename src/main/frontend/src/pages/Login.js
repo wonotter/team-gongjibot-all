@@ -19,20 +19,17 @@ function Login() {
         { email, password },
         { 
           headers: { 'Content-Type': 'application/json' },
-          withCredentials: true // 쿠키를 주고받기 위해 필요
+          withCredentials: true
         }
       );
       
-      // 응답 헤더에서 JWT 토큰 추출
       const accessToken = response.headers['authorization'];
       const refreshToken = response.headers['authorization-refresh'];
       
       if (accessToken && refreshToken) {
-        // 토큰 저장 및 axios 기본 헤더 설정
         setTokens(accessToken, refreshToken);
-        
         alert('로그인 성공!');
-        navigate('/'); // 홈 페이지로 이동
+        navigate('/');
       } else {
         setError('토큰을 받지 못했습니다. 관리자에게 문의하세요.');
       }
@@ -44,6 +41,11 @@ function Login() {
         setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
     }
+  };
+
+  // ✅ OAuth 로그인 경로로 이동
+  const handleOAuthLogin = (provider) => {
+    window.location.href = `http://localhost:4000/oauth2/authorize/${provider}`;//여기 경로를 바꾸시면 됩니다!
   };
 
   return (
@@ -67,6 +69,16 @@ function Login() {
         {error && <div className="error-message">{error}</div>}
         <button type="submit">로그인</button>
       </form>
+
+      <div className="oauth-wrapper">
+        <p className="oauth-title">또는 SNS 계정으로 로그인</p>
+        <div className="oauth-buttons">
+          <button onClick={() => handleOAuthLogin('kakao')} className="oauth-button kakao">카카오로 로그인</button>
+          <button onClick={() => handleOAuthLogin('google')} className="oauth-button google">구글로 로그인</button>
+          <button onClick={() => handleOAuthLogin('naver')} className="oauth-button naver">네이버로 로그인</button>
+        </div>
+      </div>
+
       <div className="helper-text">
         <a href="/signup">회원가입</a>
         &nbsp;|&nbsp;
