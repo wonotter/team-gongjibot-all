@@ -3,22 +3,16 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Sidebar from './components/Sidebar';
+import Home from './pages/Home';
+import Mypage from './pages/Mypage';
+import FindPassword from './pages/FindPassword';
 import { initializeAuth } from './utils/auth';
 import './App.css';
 
-function Home() {
-  return (
-    <div className="home-container">
-      <div className="message-box">
-        <p>무엇을 알려드릴까요??</p>
-      </div>
-    </div>
-  );
-}
 
 function Layout() {
   const location = useLocation();
-  const hideSidebar = location.pathname === '/signup'; // 회원가입 경로에서는 사이드바 숨김
+  const hideSidebar = location.pathname === '/signup' || location.pathname === '/login' || location.pathname === '/password-reset'; // 회원가입, 로그인, 비밀번호 찾기 경로에서는 사이드바 숨김
 
   return (
     <>
@@ -28,6 +22,8 @@ function Layout() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/mypage" element={<Mypage />}/>
+          <Route path="/password-reset" element={<FindPassword />}/>
         </Routes>
       </main>
     </>
