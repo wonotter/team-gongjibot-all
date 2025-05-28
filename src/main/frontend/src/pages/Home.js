@@ -1,6 +1,7 @@
-import React,{ useState, useEffect, useRef } from "react";
-import './Auth.css';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from '../components/Sidebar';
+import '../App.css';
+import './Auth.css';
 
 function Home() {
   const [question, setQuestion] = useState('');
@@ -19,12 +20,26 @@ function Home() {
     scrollToBottom();
   }, [chat, answer]);
 
-  const mockAnswer = (q) => {
-    if (q.includes('날씨')) return '오늘은 맑고 따뜻한 날씨입니다.';
-    if (q.includes('시간')) return '지금은 오후 3시 24분입니다.';
-    return '좋은 질문이에요! 하지만 저는 아직 그에 대한 정보를 학습하지 못했어요.';
+  // 질문을 서버에 전송하고 JSON 응답 받는 함수
+  const sendQuestionToBackend = async (q) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ question: q }),
+      });
+
+      const data = await response.json();
+      return data.answer;
+    } catch (error) {
+      console.error('❌ 서버 통신 오류:', error);
+      return '서버와 연결할 수 없습니다.';
+    }
   };
 
+  // 질문 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!question.trim()) return;
@@ -32,7 +47,8 @@ function Home() {
     if (!started) setStarted(true);
 
     setChat((prev) => [...prev, { type: 'question', text: question }]);
-    const fullAnswer = mockAnswer(question);
+    const fullAnswer = await sendQuestionToBackend(question);
+
     setQuestion('');
     setAnswer('');
     setLoading(true);
@@ -46,7 +62,7 @@ function Home() {
         clearInterval(interval);
         setLoading(false);
         setChat((prev) => [...prev, { type: 'answer', text: fullAnswer }]);
-        setAnswer(''); // ✅ 애니메이션 상태 초기화
+        setAnswer('');
       }
     }, 50);
   };
