@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import { getAccessToken } from '../utils/auth';
 import '../App.css';
 import './Auth.css';
 
@@ -7,16 +9,36 @@ function Mypage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // 로그인 체크 제거
-    // 더미 데이터 삽입
-    setChatHistory([
-      { question: '오늘 날씨 어때?', answer: '맑고 따뜻합니다.' },
-      { question: '시간이 어떻게 되지?', answer: '오후 2시입니다.' },
-      { question: '서울 날씨 알려줘', answer: '구름 조금 있는 맑은 날씨입니다.' }
-    ]);
+    const token = getAccessToken();
+    if (!token) {
+      alert('로그인 후 이용해주세요.');
+      navigate('/login');
+    } else {
+      fetchChatHistory(token);
+    }
   }, []);
+
+  const fetchChatHistory = async (token) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/history', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error('응답 실패');
+
+      const data = await response.json();
+      setChatHistory(data.history || []);
+    } catch (err) {
+      console.error('❌ 채팅 내역 불러오기 실패:', err);
+    }
+  };
 
   const filteredHistory = chatHistory.filter((chat) =>
     chat.question.toLowerCase().includes(search.toLowerCase())
