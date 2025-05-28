@@ -19,7 +19,7 @@ function Mypage() {
     } else {
       fetchChatHistory(token);
     }
-  }, []);
+  }, [navigate]);
 
   const fetchChatHistory = async (token) => {
     try {

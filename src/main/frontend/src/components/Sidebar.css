@@ -8,24 +8,44 @@
   color: #00bcd4;
   cursor: pointer;
   z-index: 1100;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.menu-button:hover {
+  transform: scale(1.1);
+  color: #0097a7;
 }
 
 .sidebar {
   position: fixed;
-  left: -250px; 
+  left: -280px; 
   top: 0;
-  width: 250px;
+  width: 280px;
   height: 100%;
-  background-color: #f9f9f9;
+  background: linear-gradient(to right, #f9f9f9, #ffffff);
   color: #333;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  padding: 40px 20px;
-  transition: left 0.3s ease;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+  padding: 40px 0;
+  transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 1000;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .sidebar.open {
   left: 0;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(to bottom, #00bcd4, #0097a7);
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 
 .sidebar ul {
@@ -35,23 +55,41 @@
 }
 
 .sidebar ul li {
-  margin: 20px 0;
+  margin: 5px 0;
+  padding: 0 25px;
+  position: relative;
+}
+
+.sidebar ul li::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 80%;
+  margin: 8px auto;
+  background: linear-gradient(to right, transparent, rgba(0, 188, 212, 0.2), transparent);
+}
+
+.sidebar ul li:last-child::after {
+  display: none;
 }
 
 .sidebar ul li a {
   color: #00bcd4;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1.1rem;
   display: block;
-  padding: 10px 0;
-  transition: color 0.3s ease;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
 }
 
 .sidebar ul li a:hover {
   color: #0097a7;
-  text-decoration: none;
+  background-color: rgba(0, 188, 212, 0.1);
   transform: translateX(5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 /* 로그아웃 버튼 스타일 */
@@ -59,17 +97,38 @@
   background: none;
   border: none;
   color: #00bcd4;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
-  padding: 10px 0;
+  padding: 12px 15px;
   text-align: left;
   width: 100%;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
 }
 
 .sidebar-logout:hover {
-  color: #0097a7;
-  text-decoration: none;
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
   transform: translateX(5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* 메뉴 제목 스타일 */
+.sidebar-title {
+  text-align: center;
+  color: #0097a7;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  padding: 0 25px;
+  letter-spacing: 1px;
+}
+
+/* 메뉴 아이템 활성화 상태 */
+.sidebar ul li a.active {
+  background-color: rgba(0, 188, 212, 0.15);
+  color: #0097a7;
+  font-weight: 700;
 }

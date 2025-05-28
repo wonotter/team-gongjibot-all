@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+import { setTokens, isAuthenticated } from '../utils/auth';
 import '../App.css';
 import './Auth.css';
 
@@ -10,7 +12,36 @@ function Home() {
   const [chat, setChat] = useState([]);
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const chatEndRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // URL 파라미터에서 토큰 추출
+    const params = new URLSearchParams(location.search);
+    const accessToken = params.get('accessToken');
+    const refreshToken = params.get('refreshToken');
+
+    // 토큰이 URL에 있으면 저장하고 URL 파라미터 정리
+    if (accessToken) {
+      const tokens = {};
+      tokens.accessToken = accessToken;
+      if (refreshToken) tokens.refreshToken = refreshToken;
+      
+      // 토큰 저장
+      setTokens(accessToken, refreshToken || '');
+      
+      // URL 파라미터 제거 (히스토리 상태 유지)
+      navigate('/', { replace: true });
+      
+      // 로그인 상태 업데이트
+      setIsLoggedIn(true);
+    } else {
+      // 토큰이 URL에 없으면 로컬 스토리지 확인
+      setIsLoggedIn(isAuthenticated());
+    }
+  }, [location, navigate]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -45,7 +45,7 @@ function Login() {
 
   // ✅ OAuth 로그인 경로로 이동
   const handleOAuthLogin = (provider) => {
-    window.location.href = `http://localhost:4000/oauth2/authorize/${provider}`;//여기 경로를 바꾸시면 됩니다!
+    window.location.href = `http://localhost:4000/oauth2/authorization/${provider}`;
   };
 
   return (
