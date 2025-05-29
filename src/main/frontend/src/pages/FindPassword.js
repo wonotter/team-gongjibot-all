@@ -42,7 +42,7 @@ function FindPassword() {
     }
 
     try {
-      const response = await axios.post('http://localhost:4000/api/v1/auth/email-certification', {
+      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/email-certification', {
         email: email,
         purpose: 'RESET_PASSWORD'
       });
@@ -85,7 +85,7 @@ function FindPassword() {
     }
 
     try {
-      const response = await axios.post('http://localhost:4000/api/v1/auth/password-reset', {
+      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/password-reset', {
         email: email,
         code: code,
         newPassword: newPassword

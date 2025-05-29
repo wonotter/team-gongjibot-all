@@ -23,7 +23,7 @@ function Mypage() {
 
   const fetchChatHistory = async (token) => {
     try {
-      const response = await fetch('http://localhost:8000/api/history', {
+      const response = await fetch('http://wonokim.iptime.org:4000/api/history', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

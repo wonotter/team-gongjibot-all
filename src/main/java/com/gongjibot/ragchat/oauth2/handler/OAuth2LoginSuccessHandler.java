@@ -24,7 +24,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final String FRONTEND_URL = "http://localhost:3000";
+    private final String FRONTEND_URL = "http://wonokim.iptime.org:3000";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {

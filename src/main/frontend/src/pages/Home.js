@@ -54,7 +54,7 @@ function Home() {
   // 질문을 서버에 전송하고 JSON 응답 받는 함수
   const sendQuestionToBackend = async (q) => {
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch('http://wonokim.iptime.org:4000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,6 +98,10 @@ function Home() {
     }, 50);
   };
 
+  const handleLoginRedirect = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="main-wrapper">
       <Sidebar open={sidebarOpen} />
@@ -110,7 +114,18 @@ function Home() {
 
       <div className="content-container">
         <div className="content-inner">
-          {!started ? (
+          {!isLoggedIn ? (
+            // 로그인하지 않은 상태
+            <div className="home-container">
+              <div
+                className="message-box"
+                onClick={handleLoginRedirect}
+              >
+                <p>로그인 후 서비스 이용이 가능합니다</p>
+              </div>
+            </div>
+          ) : !started ? (
+            // 로그인 상태이지만 채팅이 시작되지 않은 상태
             <div className="home-container">
               <div
                 className="message-box"
@@ -120,6 +135,7 @@ function Home() {
               </div>
             </div>
           ) : (
+            // 로그인 상태이고 채팅이 시작된 상태
             <div className="chat-container">
               <div className="chat-history">
                 {chat.map((item, index) => (

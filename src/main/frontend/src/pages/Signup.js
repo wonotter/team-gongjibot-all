@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
 import './Auth.css';
 
 function Signup() {
@@ -16,6 +17,7 @@ function Signup() {
   const [isVerified, setIsVerified] = useState(false);
   const [passwordMatch, setPasswordMatch] = useState(true);
   const [message, setMessage] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -34,7 +36,7 @@ function Signup() {
     }
 
     try {
-      const response = await axios.post('http://localhost:4000/api/v1/auth/email-certification', {
+      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/email-certification', {
         email: form.email,
         purpose: 'SIGN_UP',
       });
@@ -54,7 +56,7 @@ function Signup() {
     if (!passwordMatch || !form.verificationCode) return;
 
     try {
-      const response = await axios.post('http://localhost:4000/api/v1/auth/sign-up', {
+      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/sign-up', {
         email: form.email,
         password: form.password,
         nickname: form.nickname,
@@ -81,96 +83,108 @@ function Signup() {
     form.verificationCode;
 
   return (
-    <div className="auth-wrapper animate-fade-in">
-      <h2>회원가입</h2>
-      <form onSubmit={handleSubmit} className="form-slide">
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input
-            name="email"
-            type="email"
-            placeholder="이메일"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={{ flex: 6 }}
-          />
-          <button
-            type="button"
-            onClick={handleSendVerification}
-            style={{ flex: 4, height: '50px' }}
-            disabled={isVerified}
-          >
-            인증코드 발송
-          </button>
+    <div className="main-wrapper">
+      <Sidebar open={sidebarOpen} />
+      <button
+        className="menu-button"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        ☰
+      </button>
+      
+      <div className="content-container">
+        <div className="auth-wrapper animate-fade-in">
+          <h2>회원가입</h2>
+          <form onSubmit={handleSubmit} className="form-slide">
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <input
+                name="email"
+                type="email"
+                placeholder="이메일"
+                value={form.email}
+                onChange={handleChange}
+                required
+                style={{ flex: 6 }}
+              />
+              <button
+                type="button"
+                onClick={handleSendVerification}
+                style={{ flex: 4, height: '50px' }}
+                disabled={isVerified}
+              >
+                인증코드 발송
+              </button>
+            </div>
+
+            {emailStatus === 'success' && (
+              <p className="helper-text" style={{ color: 'green' }}>
+                인증 코드가 정상적으로 발송되었습니다.
+              </p>
+            )}
+            {emailStatus === 'error' && (
+              <p className="helper-text" style={{ color: 'red' }}>
+                이메일 형식이 올바르지 않거나 발송에 실패했습니다.
+              </p>
+            )}
+
+            {isCertificating && (
+              <input
+                name="verificationCode"
+                type="text"
+                placeholder="인증코드 입력"
+                value={form.verificationCode}
+                onChange={handleChange}
+                required
+              />
+            )}
+
+            <input
+              name="nickname"
+              placeholder="닉네임"
+              value={form.nickname}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="password"
+              type="password"
+              placeholder="비밀번호"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <input
+              name="confirmPassword"
+              type="password"
+              placeholder="비밀번호 확인"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            {!passwordMatch && (
+              <p className="helper-text" style={{ color: 'red', fontSize: '0.8rem' }}>
+                비밀번호가 일치하지 않습니다.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={!isFormValid}
+              style={{
+                opacity: isFormValid ? 1 : 0.5,
+                cursor: isFormValid ? 'pointer' : 'not-allowed',
+              }}
+            >
+              가입하기
+            </button>
+          </form>
+
+          {message && <p className="helper-text fade-in-delay">{message}</p>}
+          <p className="helper-text fade-in-delay">
+            이미 계정이 있으신가요? <a href="/login">로그인</a>
+          </p>
         </div>
-
-        {emailStatus === 'success' && (
-          <p className="helper-text" style={{ color: 'green' }}>
-            인증 코드가 정상적으로 발송되었습니다.
-          </p>
-        )}
-        {emailStatus === 'error' && (
-          <p className="helper-text" style={{ color: 'red' }}>
-            이메일 형식이 올바르지 않거나 발송에 실패했습니다.
-          </p>
-        )}
-
-        {isCertificating && (
-          <input
-            name="verificationCode"
-            type="text"
-            placeholder="인증코드 입력"
-            value={form.verificationCode}
-            onChange={handleChange}
-            required
-          />
-        )}
-
-        <input
-          name="nickname"
-          placeholder="닉네임"
-          value={form.nickname}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="비밀번호"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="confirmPassword"
-          type="password"
-          placeholder="비밀번호 확인"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          required
-        />
-        {!passwordMatch && (
-          <p className="helper-text" style={{ color: 'red', fontSize: '0.8rem' }}>
-            비밀번호가 일치하지 않습니다.
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          style={{
-            opacity: isFormValid ? 1 : 0.5,
-            cursor: isFormValid ? 'pointer' : 'not-allowed',
-          }}
-        >
-          가입하기
-        </button>
-      </form>
-
-      {message && <p className="helper-text fade-in-delay">{message}</p>}
-      <p className="helper-text fade-in-delay">
-        이미 계정이 있으신가요? <a href="/login">로그인</a>
-      </p>
+      </div>
     </div>
   );
 }

@@ -52,7 +52,7 @@ export const setupAxiosInterceptors = () => {
           }
           
           // 토큰 갱신 요청
-          const response = await axios.post('http://localhost:4000/api/v1/auth/refresh', {}, {
+          const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/refresh', {}, {
             headers: {
               'Authorization-refresh': refreshToken
             },
