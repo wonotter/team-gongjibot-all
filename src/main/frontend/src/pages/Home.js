@@ -54,15 +54,37 @@ function Home() {
   // 질문을 서버에 전송하고 JSON 응답 받는 함수
   const sendQuestionToBackend = async (q) => {
     try {
+      // 로컬 스토리지에서 토큰 가져오기
+      const accessToken = localStorage.getItem('accessToken');
+
+      if (!accessToken) {
+        throw new Error('인증 토큰이 없습니다. 다시 로그인해 주세요.');
+      }
+
       const response = await fetch('http://wonokim.iptime.org:4000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}` // 인증 토큰 추가
         },
         body: JSON.stringify({ question: q }),
+        credentials: 'include' // 쿠키 포함
       });
 
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('인증이 만료되었습니다. 다시 로그인해 주세요.');
+        } else {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
+      }
+
       const data = await response.json();
+
+      if (!data || !data.answer) {
+        throw new Error('서버 응답 형식이 올바르지 않습니다.');
+      }
+
       return data.answer;
     } catch (error) {
       console.error('❌ 서버 통신 오류:', error);

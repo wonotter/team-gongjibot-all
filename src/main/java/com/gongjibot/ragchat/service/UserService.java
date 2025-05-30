@@ -139,4 +139,10 @@ public class UserService {
         userRepository.save(user);
         certificationRepository.deleteByEmail(dto.email());
     }
+
+    @Transactional(readOnly = true)
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+    }
 }
