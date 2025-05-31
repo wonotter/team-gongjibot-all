@@ -145,4 +145,28 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
     }
+    
+    /**
+     * 사용자 ID로 프로필 정보를 조회합니다.
+     * @param userId 사용자 ID
+     * @return 사용자 프로필 정보
+     */
+    @Transactional(readOnly = true)
+    public UserProfileResponseDto getUserProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        
+        return UserProfileResponseDto.fromEntity(user);
+    }
+    
+    /**
+     * 현재 로그인한 사용자의 ID로 프로필 정보를 조회합니다.
+     * @param email 사용자 이메일
+     * @return 사용자 프로필 정보
+     */
+    @Transactional(readOnly = true)
+    public UserProfileResponseDto getUserProfileByEmail(String email) {
+        User user = getUserByEmail(email);
+        return UserProfileResponseDto.fromEntity(user);
+    }
 }
