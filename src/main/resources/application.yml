@@ -28,9 +28,9 @@ jwt:
   
 # FastAPI 서버 설정
 fastapi:
-  url: http://localhost:8000  # 테스트용 값
+  url: https://9812-119-56-183-152.ngrok-free.app
 
 # 챗봇 테스트 모드 설정
 chatbot:
-  test-mode: true  # true로 설정하면 FastAPI 연결 없이 모의 응답 생성
+  test-mode: false  # true로 설정하면 FastAPI 연결 없이 모의 응답 생성
   
