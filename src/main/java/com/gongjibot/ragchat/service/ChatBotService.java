@@ -65,19 +65,31 @@ public class ChatBotService {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("question", question);
+            requestBody.put("text", question);
 
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestBody, headers);
 
             // FastAPI 엔드포인트로 요청
             Map<String, String> response = restTemplate.postForObject(
-                    fastApiUrl + "/api/chat",
+                    fastApiUrl + "/ask",
                     entity,
                     Map.class
             );
+            
+            log.info("FastAPI 응답: {}", response);
 
-            if (response != null && response.containsKey("answer")) {
-                return response.get("answer");
+            if (response != null) {
+                // 가능한 응답 키 확인
+                if (response.containsKey("answer")) {
+                    return response.get("answer");
+                } else if (response.containsKey("response")) {
+                    return response.get("response");
+                } else if (response.containsKey("result")) {
+                    return response.get("result");
+                } else {
+                    log.warn("알 수 없는 응답 형식: {}", response);
+                    return "응답 형식이 예상과 다릅니다.";
+                }
             } else {
                 return "답변을 받아오는 데 실패했습니다.";
             }
