@@ -11,9 +11,11 @@ function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chat, setChat] = useState([]);
   const [started, setStarted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // 서버 응답 기다리는 중
+  const [typing, setTyping] = useState(false);   // 답변 타이핑 중
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const chatEndRef = useRef(null);
+  const intervalRef = useRef(null);  // interval 참조를 저장할 ref
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -49,7 +51,7 @@ function Home() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [chat, answer]);
+  }, [chat, answer, typing, loading]);  // 채팅, 응답, 타이핑, 로딩 상태 변경 시 스크롤
 
   // 질문을 서버에 전송하고 JSON 응답 받는 함수
   const sendQuestionToBackend = async (q) => {
@@ -99,25 +101,60 @@ function Home() {
 
     if (!started) setStarted(true);
 
+    // 먼저 질문을 채팅 기록에 추가
     setChat((prev) => [...prev, { type: 'question', text: question }]);
-    const fullAnswer = await sendQuestionToBackend(question);
-
+    
+    // 질문 입력 초기화 및 로딩 상태 설정
+    const currentQuestion = question;
     setQuestion('');
     setAnswer('');
-    setLoading(true);
+    setLoading(true); // 서버 응답 대기 시작
+    setTyping(false);
+    
+    try {
+      // 서버에 질문 전송 및 응답 대기
+      const fullAnswer = await sendQuestionToBackend(currentQuestion);
+      
+      // 서버 응답 받음, 로딩 종료 및 타이핑 시작
+      setLoading(false);
+      setTyping(true);
+      
+      // 응답 한 글자씩 표시
+      let i = 0;
+      intervalRef.current = setInterval(() => {
+        if (i < fullAnswer.length) {
+          setAnswer((prev) => prev + fullAnswer[i]);
+          i++;
+        } else {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          setTyping(false);
+          setChat((prev) => [...prev, { type: 'answer', text: fullAnswer }]);
+          setAnswer('');
+        }
+      }, 50);
+    } catch (error) {
+      // 오류 발생 시 처리
+      console.error("답변 생성 중 오류 발생:", error);
+      setLoading(false);
+      setTyping(false);
+      setChat((prev) => [...prev, { type: 'answer', text: "답변을 가져오는 중 오류가 발생했습니다." }]);
+    }
+  };
 
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < fullAnswer.length) {
-        setAnswer((prev) => prev + fullAnswer[i]);
-        i++;
-      } else {
-        clearInterval(interval);
-        setLoading(false);
-        setChat((prev) => [...prev, { type: 'answer', text: fullAnswer }]);
+  // 답변 출력 중단 핸들러
+  const handleStopResponse = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+      setTyping(false);
+      
+      // 현재까지 생성된 답변을 채팅 기록에 추가 (중단됨 문구 제거)
+      if (answer) {
+        setChat((prev) => [...prev, { type: 'answer', text: answer }]);
         setAnswer('');
       }
-    }, 50);
+    }
   };
 
   const handleLoginRedirect = () => {
@@ -157,41 +194,60 @@ function Home() {
               </div>
             </div>
           ) : (
-            // 로그인 상태이고 채팅이 시작된 상태
             <div className="chat-container">
-              <div className="chat-history">
-                {chat.map((item, index) => (
-                  <div
-                    key={index}
-                    className={`chat-bubble ${item.type === 'question' ? 'question' : 'answer'}`}
-                  >
-                    {item.text}
-                  </div>
-                ))}
-                {answer && loading && (
-                  <div className="chat-bubble answer pulse">{answer}</div>
-                )}
-                {loading && !answer && (
-                  <div className="loading-text">답변 생성 중...</div>
-                )}
-                <div ref={chatEndRef} />
+              <div className="chat-messages-wrapper">
+                <div className="chat-history">
+                  {chat.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`chat-bubble ${item.type === 'question' ? 'question' : 'answer'}`}
+                    >
+                      {item.text}
+                    </div>
+                  ))}
+                  {typing && (
+                    <div className="chat-bubble answer pulse">
+                      {answer}
+                    </div>
+                  )}
+                  {loading && !typing && (
+                    <div className="loading-container">
+                      <div className="loading-spinner"></div>
+                      <div className="loading-text">응답을 기다리는 중...</div>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
               </div>
-              <form onSubmit={handleSubmit} className="chat-form">
-                <input
-                  type="text"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="질문을 입력하세요"
-                  className="question-input"
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="question-button"
-                >
-                  질문
-                </button>
-              </form>
+              <div className="chat-input-container">
+                <form onSubmit={handleSubmit} className="chat-form">
+                  <input
+                    type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="질문을 입력하세요"
+                    className="question-input"
+                    autoFocus
+                  />
+                  {typing ? (
+                    <button 
+                      type="button" 
+                      className="stop-button"
+                      onClick={handleStopResponse}
+                    >
+                      중단
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      className="question-button"
+                      disabled={loading}
+                    >
+                      질문
+                    </button>
+                  )}
+                </form>
+              </div>
             </div>
           )}
         </div>

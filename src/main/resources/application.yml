@@ -32,5 +32,5 @@ fastapi:
 
 # 챗봇 테스트 모드 설정
 chatbot:
-  test-mode: false  # true로 설정하면 FastAPI 연결 없이 모의 응답 생성
+  test-mode: true  # true로 설정하면 FastAPI 연결 없이 모의 응답 생성
   
