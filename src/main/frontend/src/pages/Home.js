@@ -9,8 +9,15 @@ function Home() {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [chat, setChat] = useState([]);
-  const [started, setStarted] = useState(false);
+  const [chat, setChat] = useState(() => {
+    // 로컬 스토리지에서 채팅 내용 불러오기
+    const savedChat = localStorage.getItem('chatHistory');
+    return savedChat ? JSON.parse(savedChat) : [];
+  });
+  const [started, setStarted] = useState(() => {
+    // 로컬 스토리지에서 채팅 시작 상태 불러오기
+    return localStorage.getItem('chatStarted') === 'true';
+  });
   const [loading, setLoading] = useState(false); // 서버 응답 기다리는 중
   const [typing, setTyping] = useState(false);   // 답변 타이핑 중
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -18,6 +25,7 @@ function Home() {
   const intervalRef = useRef(null);  // interval 참조를 저장할 ref
   const location = useLocation();
   const navigate = useNavigate();
+  const prevIsLoggedInRef = useRef(isLoggedIn); // 이전 로그인 상태를 저장하기 위한 ref
 
   useEffect(() => {
     // URL 파라미터에서 토큰 추출
@@ -44,6 +52,33 @@ function Home() {
       setIsLoggedIn(isAuthenticated());
     }
   }, [location, navigate]);
+
+  // 로그인 상태가 변경될 때 채팅 데이터 관리
+  useEffect(() => {
+    // 로그인 상태가 변경되었고, 현재 로그인 상태인 경우
+    if (prevIsLoggedInRef.current !== isLoggedIn && isLoggedIn) {
+      // 새로운 사용자가 로그인한 경우, 이전 채팅 내역과 상태를 재확인
+      const savedChat = localStorage.getItem('chatHistory');
+      const savedStarted = localStorage.getItem('chatStarted') === 'true';
+      
+      // 로컬 스토리지 데이터 로드
+      setChat(savedChat ? JSON.parse(savedChat) : []);
+      setStarted(savedStarted);
+    }
+    
+    // 현재 로그인 상태를 ref에 저장
+    prevIsLoggedInRef.current = isLoggedIn;
+  }, [isLoggedIn]);
+
+  // chat 상태가 변경될 때마다 로컬 스토리지에 저장
+  useEffect(() => {
+    localStorage.setItem('chatHistory', JSON.stringify(chat));
+  }, [chat]);
+
+  // started 상태가 변경될 때마다 로컬 스토리지에 저장
+  useEffect(() => {
+    localStorage.setItem('chatStarted', started.toString());
+  }, [started]);
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -161,9 +196,35 @@ function Home() {
     navigate('/login');
   };
 
+  // 새 채팅 시작 함수
+  const handleNewChat = () => {
+    // 채팅 내역 초기화
+    setChat([]);
+    // 채팅 시작 상태를 true로 설정 (중요: 이 부분이 화면 전환에 필요)
+    setStarted(true);
+    // 기타 상태 초기화
+    setQuestion('');
+    setAnswer('');
+    setLoading(false);
+    setTyping(false);
+    
+    // 로컬 스토리지에서도 채팅 내역 초기화 및 started 상태 업데이트
+    localStorage.removeItem('chatHistory');
+    localStorage.setItem('chatStarted', 'true');
+    
+    // 진행 중인 타이핑이 있다면 중단
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // 추가: 콘솔에 로그 출력
+    console.log('채팅이 초기화되었습니다.');
+  };
+
   return (
     <div className="main-wrapper">
-      <Sidebar open={sidebarOpen} />
+      <Sidebar open={sidebarOpen} onNewChat={handleNewChat} />
       <button
         className="menu-button"
         onClick={() => setSidebarOpen(!sidebarOpen)}

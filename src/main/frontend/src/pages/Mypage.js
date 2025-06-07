@@ -26,6 +26,16 @@ function Mypage() {
     }
   }, [navigate]);
 
+  // 새 채팅 시작 함수
+  const handleNewChat = () => {
+    // 로컬 스토리지에서 채팅 내역 초기화
+    localStorage.removeItem('chatHistory');
+    localStorage.setItem('chatStarted', 'true');
+    
+    // 홈으로 이동
+    navigate('/');
+  };
+
   // 사용자 정보를 가져오는 함수
   const fetchUserInfo = async (token) => {
     try {
@@ -180,7 +190,7 @@ function Mypage() {
 
   return (
     <div className="main-wrapper">
-      <Sidebar open={sidebarOpen} />
+      <Sidebar open={sidebarOpen} onNewChat={handleNewChat} />
       <button
         className="menu-button"
         onClick={() => setSidebarOpen(!sidebarOpen)}

@@ -12,6 +12,12 @@ function Login() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
+  // 채팅 데이터 초기화 함수
+  const clearChatData = () => {
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('chatStarted');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -29,6 +35,10 @@ function Login() {
       const refreshToken = response.headers['authorization-refresh'];
       
       if (accessToken && refreshToken) {
+        // 로그인 성공 시 이전 채팅 데이터 삭제
+        clearChatData();
+        
+        // 토큰 저장
         setTokens(accessToken, refreshToken);
         alert('로그인 성공!');
         navigate('/');
@@ -47,6 +57,9 @@ function Login() {
 
   // ✅ OAuth 로그인 경로로 이동
   const handleOAuthLogin = (provider) => {
+    // OAuth 로그인 전에 이전 채팅 데이터 삭제
+    clearChatData();
+    
     window.location.href = `http://wonokim.iptime.org:4000/oauth2/authorization/${provider}`;
   };
 
