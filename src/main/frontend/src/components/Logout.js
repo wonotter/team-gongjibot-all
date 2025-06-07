@@ -6,6 +6,10 @@ function Logout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    // 채팅 관련 로컬 스토리지 데이터 삭제
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('chatStarted');
+    
     // 토큰 제거
     removeTokens();
     

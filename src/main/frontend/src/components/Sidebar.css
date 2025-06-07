@@ -126,6 +126,29 @@
   letter-spacing: 1px;
 }
 
+/* 새 채팅 버튼 스타일 */
+.sidebar-new-chat {
+  background: none;
+  border: none;
+  color: #00bcd4;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 12px 15px;
+  text-align: left;
+  width: 100%;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-new-chat:hover {
+  color: #0097a7;
+  background-color: rgba(0, 188, 212, 0.1);
+  transform: translateX(5px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
 /* 메뉴 아이템 활성화 상태 */
 .sidebar ul li a.active {
   background-color: rgba(0, 188, 212, 0.15);
