@@ -1,12 +1,15 @@
 /* src/App.css 또는 별도 Home.css에 추가 */
 .home-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start; 
   align-items: center;
   height: 100vh;
-  padding: 30px;
+  padding-top: 150px;  
   box-sizing: border-box;
 }
+
+
 
 .message-box {
   border: 2px solid #00bcd4;
@@ -78,12 +81,20 @@
 .menu-button {
   font-size: 1.8rem;
   position: fixed;
-  top: 24px;
+  top: 18px;
   left: 24px;
-  z-index: 1100;
+  z-index: 1200;
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.site-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: #00bcd4; 
+  z-index: 1100;
+  
 }
 
 .content-container {
@@ -198,4 +209,118 @@
 
 .stop-button:hover {
   background-color: #ff1744;
+}
+
+.top-bar {
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #ddd;
+  background-color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 900;
+}
+
+
+.profile-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.profile-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #00bcd4;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+.profile-icon {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  z-index: 1100;
+}
+.profile-img:hover {
+  transform: scale(1.05);
+}
+
+.bot-illustration {
+  width: 160px;
+  margin-bottom: 20px;
+}
+
+.chat-bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  max-width: 70%;
+}
+
+.chat-bubble.question {
+  align-self: flex-end;
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.chat-bubble.answer {
+  align-self: flex-start;
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.chat-icon {
+  font-size: 1.3rem;
+}
+
+.profile-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1100;
+}
+
+.profile-icon {
+  cursor: pointer;
+}
+
+.profile-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+}
+
+.profile-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-menu button:hover {
+  background-color: #f0f0f0;
 }
