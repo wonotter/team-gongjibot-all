@@ -1,9 +1,59 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { setTokens, isAuthenticated } from '../utils/auth';
+import { setTokens, isAuthenticated, getAccessToken } from '../utils/auth';
 import '../App.css';
 import './Auth.css';
+
+// 마크다운 텍스트를 HTML로 변환하는 함수
+const convertMarkdownToHTML = (text) => {
+  if (!text) return '';
+  
+  // 텍스트 줄별로 분리
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  
+  // 각 줄 처리
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    
+    // 볼드체 처리 (**텍스트**)
+    line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // 링크 처리 ([텍스트](URL))
+    line = line.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+    
+    // 리스트 항목 처리 (- 항목)
+    if (line.trim().startsWith('-')) {
+      if (!inList) {
+        html += '<ul>';
+        inList = true;
+      }
+      const itemContent = line.trim().substring(1).trim();
+      html += `<li>${itemContent}</li>`;
+    } else {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+      
+      // 빈 줄 처리
+      if (line.trim() === '') {
+        html += '<br/>';
+      } else {
+        html += `<p>${line}</p>`;
+      }
+    }
+  }
+  
+  // 리스트가 끝나지 않았으면 닫아주기
+  if (inList) {
+    html += '</ul>';
+  }
+  
+  return html;
+};
 
 function Home() {
   const [question, setQuestion] = useState('');
@@ -20,6 +70,7 @@ function Home() {
   const [typing, setTyping] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
 
   const chatEndRef = useRef(null);
   const intervalRef = useRef(null);
@@ -47,8 +98,16 @@ function Home() {
       const savedStarted = localStorage.getItem('chatStarted') === 'true';
       setChat(savedChat ? JSON.parse(savedChat) : []);
       setStarted(savedStarted);
+      
+      fetchUserInfo();
     }
     prevIsLoggedInRef.current = isLoggedIn;
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchUserInfo();
+    }
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -170,6 +229,8 @@ function Home() {
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('chatStarted');
     setIsLoggedIn(false);
     navigate('/login');
   };
@@ -178,21 +239,60 @@ function Home() {
     navigate('/mypage');
   };
 
+  const fetchUserInfo = async () => {
+    try {
+      const token = getAccessToken();
+      if (!token) return;
+
+      const response = await fetch('http://wonokim.iptime.org:4000/api/v1/auth/profile', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('인증이 만료되었습니다.');
+        } else {
+          throw new Error(`서버 오류: ${response.status}`);
+        }
+      }
+
+      const data = await response.json();
+      setUserInfo(data);
+    } catch (err) {
+      console.error('❌ 사용자 정보 불러오기 실패:', err);
+    }
+  };
+
+  const getProfileImageUrl = () => {
+    if (!userInfo) return '/default-profile.png';
+    return userInfo.imageUrl || '/default-profile.png';
+  };
+
   return (
     <div className="main-wrapper">
       <Sidebar open={sidebarOpen} onNewChat={handleNewChat} />
       <button className="menu-button" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-      <span className="site-title">KIT Chat BOT</span>
+      <div className="site-title-container">
+        <span className="site-title">KIT Chat BOT</span>
+      </div>
       <div className="top-bar">
         {isLoggedIn && (
           <div className="profile-wrapper">
             <div className="profile-icon" onClick={handleProfileClick}>
-              <img src="/default-profile.png" alt="프로필" className="profile-img" />
+              <img src={getProfileImageUrl()} alt="프로필" className="profile-img" />
             </div>
             {showProfileMenu && (
               <div className="profile-menu">
-                <button onClick={goToMyPage}>마이페이지</button>
-                <button onClick={handleLogout}>로그아웃</button>
+                <button onClick={goToMyPage}>
+                  <i className="fas fa-user"></i> 마이페이지
+                </button>
+                <button onClick={handleLogout}>
+                  <i className="fas fa-sign-out-alt"></i> 로그아웃
+                </button>
               </div>
             )}
           </div>
@@ -221,16 +321,29 @@ function Home() {
                 <div className="chat-history">
                   {chat.map((item, index) => (
                     <div key={index} className={`chat-bubble ${item.type}`}>
-                      {item.text}
+                      {item.type === 'answer' ? (
+                        <div 
+                          className="markdown-content"
+                          dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(item.text) }}
+                        />
+                      ) : (
+                        item.text
+                      )}
                     </div>
                   ))}
                   {typing && (
                     <div className="chat-bubble answer pulse">
-                      {answer}
+                      <div 
+                        className="markdown-content"
+                        dangerouslySetInnerHTML={{ __html: convertMarkdownToHTML(answer) }}
+                      />
                     </div>
                   )}
                   {loading && !typing && (
-                    <div className="loading-text">응답을 기다리는 중...</div>
+                    <div className="loading-text">
+                      <div className="loading-spinner"></div>
+                      응답을 기다리는 중...
+                    </div>
                   )}
                   <div ref={chatEndRef} />
                 </div>
