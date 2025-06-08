@@ -184,6 +184,7 @@ function Home() {
       <button className="menu-button" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
       <span className="site-title">KIT Chat BOT</span>
       <div className="top-bar">
+        {isLoggedIn && (
           <div className="profile-wrapper">
             <div className="profile-icon" onClick={handleProfileClick}>
               <img src="/default-profile.png" alt="프로필" className="profile-img" />
@@ -195,6 +196,7 @@ function Home() {
               </div>
             )}
           </div>
+        )}
       </div>
 
       <div className="content-container">
