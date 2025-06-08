@@ -5,6 +5,71 @@ import { getAccessToken } from '../utils/auth';
 import '../App.css';
 import './Auth.css';
 
+// 마크다운 텍스트를 HTML로 변환하는 함수
+const convertMarkdownToHTML = (text, searchTerm = '') => {
+  if (!text) return '';
+  
+  // 텍스트 줄별로 분리
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  
+  // 각 줄 처리
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    
+    // 검색어 하이라이트 적용 함수
+    const applyHighlight = (content) => {
+      if (!searchTerm || !searchTerm.trim()) return content;
+      
+      return content.replace(
+        new RegExp(`(${searchTerm})`, 'gi'),
+        '<mark style="background-color: #fff3cd; padding: 0 2px;">$1</mark>'
+      );
+    };
+    
+    // 볼드체 처리 전에 검색어 하이라이트 적용
+    if (searchTerm) {
+      line = applyHighlight(line);
+    }
+    
+    // 볼드체 처리 (**텍스트**)
+    line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // 링크 처리 ([텍스트](URL))
+    line = line.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+    
+    // 리스트 항목 처리 (- 항목)
+    if (line.trim().startsWith('-')) {
+      if (!inList) {
+        html += '<ul>';
+        inList = true;
+      }
+      const itemContent = line.trim().substring(1).trim();
+      html += `<li>${itemContent}</li>`;
+    } else {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+      
+      // 빈 줄 처리
+      if (line.trim() === '') {
+        html += '<br/>';
+      } else {
+        html += `<p>${line}</p>`;
+      }
+    }
+  }
+  
+  // 리스트가 끝나지 않았으면 닫아주기
+  if (inList) {
+    html += '</ul>';
+  }
+  
+  return html;
+};
+
 function Mypage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
@@ -13,6 +78,7 @@ function Mypage() {
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('all'); // 'all', 'question', 'answer'
   const [userInfo, setUserInfo] = useState(null); // 사용자 정보 상태 추가
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +100,18 @@ function Mypage() {
     
     // 홈으로 이동
     navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    setShowProfileMenu(!showProfileMenu);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('chatStarted');
+    navigate('/login');
   };
 
   // 사용자 정보를 가져오는 함수
@@ -128,7 +206,45 @@ function Mypage() {
     });
   };
 
-  // 검색 결과에서 검색어 하이라이트 처리
+  // 검색 결과에서 검색어 하이라이트 처리 (HTML 문자열 버전)
+  const highlightTextInHTML = (html, searchTerm) => {
+    if (!searchTerm.trim()) return html;
+    
+    // 1. 볼드체 등 HTML 태그 내부의 텍스트도 하이라이트하기 위해 처리
+    // 먼저 태그와 텍스트를 분리
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // 모든 텍스트 노드를 찾아서 하이라이트 처리
+    const walkAndHighlight = (node) => {
+      if (node.nodeType === 3) { // 텍스트 노드인 경우
+        const text = node.textContent;
+        if (text.trim() !== '') {
+          const regex = new RegExp(`(${searchTerm})`, 'gi');
+          if (regex.test(text)) {
+            const wrapper = document.createElement('span');
+            const parts = text.split(regex);
+            
+            wrapper.innerHTML = parts.map(part => 
+              part.toLowerCase() === searchTerm.toLowerCase()
+                ? `<mark style="background-color: #fff3cd; padding: 0 2px;">${part}</mark>`
+                : part
+            ).join('');
+            
+            // 원래 텍스트 노드를 래퍼로 교체
+            node.parentNode.replaceChild(wrapper, node);
+          }
+        }
+      } else if (node.nodeType === 1) { // 요소 노드인 경우
+        Array.from(node.childNodes).forEach(walkAndHighlight);
+      }
+    };
+    
+    Array.from(tempDiv.childNodes).forEach(walkAndHighlight);
+    return tempDiv.innerHTML;
+  };
+
+  // 일반 텍스트 하이라이트 처리
   const highlightText = (text, searchTerm) => {
     if (!searchTerm.trim()) return text;
     
@@ -138,6 +254,12 @@ function Mypage() {
         ? <mark key={index} style={{ backgroundColor: '#fff3cd', padding: '0 2px' }}>{part}</mark> 
         : part
     );
+  };
+
+  // 프로필 이미지 URL 결정
+  const getProfileImageUrl = () => {
+    if (!userInfo) return '/default-profile.png';
+    return userInfo.imageUrl || '/default-profile.png';
   };
 
   // 사용자 정보 렌더링 컴포넌트
@@ -163,11 +285,9 @@ function Mypage() {
       <div className="user-profile-section">
         <h3>사용자 정보</h3>
         <div className="user-profile-card">
-          {userInfo.imageUrl && (
-            <div className="user-profile-image">
-              <img src={userInfo.imageUrl} alt="프로필" />
-            </div>
-          )}
+          <div className="user-profile-image">
+            <img src={getProfileImageUrl()} alt="프로필" />
+          </div>
           <div className="user-profile-details">
             <p><strong>닉네임:</strong> {userInfo.nickname || '미설정'}</p>
             
@@ -197,6 +317,26 @@ function Mypage() {
       >
         ☰
       </button>
+      <div className="site-title-container">
+        <span className="site-title">KIT Chat BOT</span>
+      </div>
+      <div className="top-bar">
+        <div className="profile-wrapper">
+          <div className="profile-icon" onClick={handleProfileClick}>
+            <img src={getProfileImageUrl()} alt="프로필" className="profile-img" />
+          </div>
+          {showProfileMenu && (
+            <div className="profile-menu">
+              <button onClick={() => navigate('/')}>
+                <i className="fas fa-home"></i> 홈으로
+              </button>
+              <button onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt"></i> 로그아웃
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="content-container">
         <div className="content-inner">
@@ -271,14 +411,24 @@ function Mypage() {
                 <div key={idx} className="chat-history-item">
                   <div className="chat-timestamp">{formatDate(chat.timestamp)}</div>
                   <div className="chat-bubble question">
-                    <strong>Q.</strong> {
-                      search ? highlightText(chat.question, search) : chat.question
+                    <strong>Q</strong> {
+                      // 검색어가 있고, 검색 유형이 '전체' 또는 '질문만'인 경우에만 하이라이트 적용
+                      search && (searchType === 'all' || searchType === 'question')
+                        ? highlightText(chat.question, search) 
+                        : chat.question
                     }
                   </div>
                   <div className="chat-bubble answer">
-                    <strong>A.</strong> {
-                      search ? highlightText(chat.answer, search) : chat.answer
-                    }
+                    <strong>A</strong> 
+                    <div 
+                      className="markdown-content"
+                      dangerouslySetInnerHTML={{ 
+                        __html: convertMarkdownToHTML(
+                          chat.answer,
+                          search && (searchType === 'all' || searchType === 'answer') ? search : ''
+                        ) 
+                      }}
+                    />
                   </div>
                 </div>
               ))}
