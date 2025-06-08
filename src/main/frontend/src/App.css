@@ -243,7 +243,7 @@
 }
 .profile-icon {
   position: fixed;
-  top: 20px;
+  top: 18px;
   right: 20px;
   cursor: pointer;
   z-index: 1100;
