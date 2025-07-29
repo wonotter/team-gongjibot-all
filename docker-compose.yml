@@ -3,30 +3,60 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: ragchat
+    container_name: ragchat-db
     ports:
       - "3308:3308"
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     env_file:
       - ./.env
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -P 3308 -u root -p${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
+      interval: 30s
+      timeout: 10s
       retries: 5
-      start_period: 10s
+      start_period: 30s
     networks:
       - ragchat
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
     command:
       - --port=3308
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-    restart: always
+      - --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+
+  ragchat-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ragchat-app
+    ports:
+      - "4000:4000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3308/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ragchat
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:4000/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 networks:
   ragchat:

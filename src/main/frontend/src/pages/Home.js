@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { setTokens, isAuthenticated, getAccessToken } from '../utils/auth';
+import { createApiUrl, API_ENDPOINTS } from '../utils/api';
 import '../App.css';
 import './Auth.css';
 
@@ -131,7 +132,7 @@ function Home() {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) throw new Error('인증 토큰이 없습니다. 다시 로그인해 주세요.');
 
-      const response = await fetch('http://wonokim.iptime.org:4000/api/chat', {
+      const response = await fetch(createApiUrl(API_ENDPOINTS.CHAT), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -244,7 +245,7 @@ function Home() {
       const token = getAccessToken();
       if (!token) return;
 
-      const response = await fetch('http://wonokim.iptime.org:4000/api/v1/auth/profile', {
+      const response = await fetch(createApiUrl(API_ENDPOINTS.PROFILE), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

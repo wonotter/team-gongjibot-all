@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { createApiUrl, API_ENDPOINTS } from '../utils/api';
 import './Auth.css';
 
 function FindPassword() {
@@ -42,7 +43,7 @@ function FindPassword() {
     }
 
     try {
-      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/email-certification', {
+      const response = await axios.post(createApiUrl(API_ENDPOINTS.EMAIL_CERTIFICATION), {
         email: email,
         purpose: 'RESET_PASSWORD'
       });
@@ -85,7 +86,7 @@ function FindPassword() {
     }
 
     try {
-      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/password-reset', {
+      const response = await axios.post(createApiUrl(API_ENDPOINTS.PASSWORD_RESET), {
         email: email,
         code: code,
         newPassword: newPassword

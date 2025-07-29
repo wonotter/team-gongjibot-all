@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { getAccessToken } from '../utils/auth';
+import { createApiUrl, API_ENDPOINTS } from '../utils/api';
 import '../App.css';
 import './Auth.css';
 
@@ -117,7 +118,7 @@ function Mypage() {
   // 사용자 정보를 가져오는 함수
   const fetchUserInfo = async (token) => {
     try {
-      const response = await fetch('http://wonokim.iptime.org:4000/api/v1/auth/profile', {
+      const response = await fetch(createApiUrl(API_ENDPOINTS.PROFILE), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -146,7 +147,7 @@ function Mypage() {
       setLoading(true);
       setError(null);
       
-      const response = await fetch('http://wonokim.iptime.org:4000/api/history', {
+      const response = await fetch(createApiUrl(API_ENDPOINTS.CHAT_HISTORY), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

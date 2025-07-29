@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { setTokens } from '../utils/auth';
+import { createApiUrl, API_ENDPOINTS } from '../utils/api';
 import Sidebar from '../components/Sidebar';
 import './Auth.css';
 
@@ -23,7 +24,7 @@ function Login() {
     setError('');
 
     try {
-      const response = await axios.post('http://wonokim.iptime.org:4000/login',
+      const response = await axios.post(createApiUrl(API_ENDPOINTS.LOGIN),
         { email, password },
         { 
           headers: { 'Content-Type': 'application/json' },
@@ -60,7 +61,12 @@ function Login() {
     // OAuth 로그인 전에 이전 채팅 데이터 삭제
     clearChatData();
     
-    window.location.href = `http://wonokim.iptime.org:4000/oauth2/authorization/${provider}`;
+    // OAuth는 전체 URL이 필요하므로 별도 처리
+    const oauthUrl = process.env.NODE_ENV === 'development' 
+      ? `http://wonokim.iptime.org:4000/oauth2/authorization/${provider}`
+      : `/oauth2/authorization/${provider}`;
+    
+    window.location.href = oauthUrl;
   };
 
   return (

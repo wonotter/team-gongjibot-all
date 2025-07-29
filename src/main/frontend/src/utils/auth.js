@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { createApiUrl, API_ENDPOINTS } from './api';
 
 // 토큰 저장 함수
 export const setTokens = (accessToken, refreshToken) => {
@@ -52,7 +53,7 @@ export const setupAxiosInterceptors = () => {
           }
           
           // 토큰 갱신 요청
-          const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/refresh', {}, {
+          const response = await axios.post(createApiUrl(API_ENDPOINTS.REFRESH), {}, {
             headers: {
               'Authorization-refresh': refreshToken
             },

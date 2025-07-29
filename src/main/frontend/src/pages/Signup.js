@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { createApiUrl, API_ENDPOINTS } from '../utils/api';
 import Sidebar from '../components/Sidebar';
 import './Auth.css';
 
@@ -36,7 +37,7 @@ function Signup() {
     }
 
     try {
-      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/email-certification', {
+      const response = await axios.post(createApiUrl(API_ENDPOINTS.EMAIL_CERTIFICATION), {
         email: form.email,
         purpose: 'SIGN_UP',
       });
@@ -56,7 +57,7 @@ function Signup() {
     if (!passwordMatch || !form.verificationCode) return;
 
     try {
-      const response = await axios.post('http://wonokim.iptime.org:4000/api/v1/auth/sign-up', {
+      const response = await axios.post(createApiUrl(API_ENDPOINTS.SIGN_UP), {
         email: form.email,
         password: form.password,
         nickname: form.nickname,

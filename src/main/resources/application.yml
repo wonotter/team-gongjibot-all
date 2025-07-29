@@ -15,6 +15,12 @@ spring:
       - security/application-jwt.yml
       - security/application-oauth.yml
 
+  # 정적 리소스 설정 추가
+  web:
+    resources:
+      static-locations: classpath:/static/
+      cache-period: 31536000  # 1년 캐시
+
 jwt:
   secretKey: ${JWT_SECRET_KEY}
   

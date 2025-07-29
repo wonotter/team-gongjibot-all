@@ -13,6 +13,8 @@ java {
 	}
 }
 
+// Node.js 관련 설정은 Dockerfile에서 처리
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -48,7 +50,12 @@ dependencies {
 
 	//Spring OAuth 2.0
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	
+	//Actuator for health checks
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
+
+// 프론트엔드 빌드는 Dockerfile에서 처리됨
 
 tasks.named('test') {
 	useJUnitPlatform()
