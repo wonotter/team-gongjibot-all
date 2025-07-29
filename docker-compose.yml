@@ -31,33 +31,6 @@ services:
       - --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
 
-  ragchat-app:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: ragchat-app
-    ports:
-      - "4000:4000"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3308/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-      - SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    env_file:
-      - ./.env
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - ragchat
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:4000/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
 networks:
   ragchat:
     driver: bridge
