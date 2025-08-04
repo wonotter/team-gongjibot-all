@@ -3,33 +3,30 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: ragchat-db
+    container_name: ragchat
     ports:
       - "3308:3308"
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     env_file:
       - ./.env
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -P 3308 -u root -p${MYSQL_ROOT_PASSWORD}"]
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 10s
     networks:
       - ragchat
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
     command:
       - --port=3308
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-      - --default-authentication-plugin=mysql_native_password
-    restart: unless-stopped
+    restart: always
 
 networks:
   ragchat:

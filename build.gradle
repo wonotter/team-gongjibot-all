@@ -48,46 +48,7 @@ dependencies {
 
 	//Spring OAuth 2.0
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	
-	//Actuator for health checks
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
-
-// 운영체제별 npm 명령어 결정
-def npmCmd = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
-
-// React 의존성 설치
-task installFrontend(type: Exec) {
-	description = 'Install frontend dependencies'
-	workingDir "${project.projectDir}/src/main/frontend"
-	commandLine npmCmd, 'install'
-	
-	inputs.file("${project.projectDir}/src/main/frontend/package.json")
-	inputs.file("${project.projectDir}/src/main/frontend/package-lock.json")
-	outputs.dir("${project.projectDir}/src/main/frontend/node_modules")
-}
-
-// React 프로덕션 빌드
-task buildFrontend(type: Exec, dependsOn: installFrontend) {
-	description = 'Build frontend'
-	workingDir "${project.projectDir}/src/main/frontend"
-	commandLine npmCmd, 'run', 'build'
-	
-	inputs.dir("${project.projectDir}/src/main/frontend/src")
-	inputs.dir("${project.projectDir}/src/main/frontend/public")
-	inputs.file("${project.projectDir}/src/main/frontend/package.json")
-	outputs.dir("${project.projectDir}/src/main/frontend/build")
-}
-
-// React 빌드 결과물을 Spring Boot static 리소스로 복사
-task copyFrontendBuild(type: Copy, dependsOn: buildFrontend) {
-	description = 'Copy frontend build to Spring Boot static resources'
-	from "${project.projectDir}/src/main/frontend/build"
-	into "${project.buildDir}/resources/main/static"
-}
-
-// Spring Boot 빌드 시 자동으로 React도 빌드
-processResources.dependsOn copyFrontendBuild
 
 tasks.named('test') {
 	useJUnitPlatform()

@@ -1,7 +1,6 @@
 package com.gongjibot.ragchat.service;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -12,7 +11,6 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.function.Consumer;
 
 @Component
-@Profile("local")
 public class GoogleMailClient implements MailClient {
     private final JavaMailSender mailSender;
     private final String fromEmail;
